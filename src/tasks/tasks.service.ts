@@ -1,3 +1,4 @@
+import { User } from './../auth/user.entity';
 import { Repository } from 'typeorm';
 import { TasksRepository } from './tasks.repository';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
@@ -13,37 +14,6 @@ export class TasksService {
     @InjectRepository(Task)
     private tasksRepository: Repository<Task>,
   ) {}  
-  // getAllTasks() {
-  //   return this.tasks;
-  // }
-
-  // // http://localhost:3000/tasks?status=IN_PROGRESS
-  // //
-  // getTasksWithFilters(filterDto: GetTasksFilterDto): Task[] {
-  //   const { status, search } = filterDto;
-
-  //   // define a temporary array to hold the result 
-  //   let tasks = this.getAllTasks();
-
-  //   // do something with status
-  //   if (status) {
-  //     tasks = tasks.filter((task) => task.status === status)
-  //   }
-
-  //   // do something with search
-  //   if (search) {
-  //     tasks = tasks.filter((task) => {
-  //       if (task.title.includes(search) || task.description.includes(search)) {
-  //         return true;
-  //       }
-        
-  //       return false;
-  //     })
-  //   }
-
-  //   // return final result
-  //   return tasks;
-  // }
 
   async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
     const { status, search } = filterDto;
@@ -79,13 +49,14 @@ export class TasksService {
     return found;
   }
 
-  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+  async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
     const { title, description } = createTaskDto;
 
     const task = this.tasksRepository.create({
       title,
       description,
       status: TaskStatus.OPEN,
+      user,
     });
 
     await this.tasksRepository.save(task);
